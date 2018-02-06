@@ -240,7 +240,7 @@ public class PasswordCracker {
     public static void main(String args[])
     {
         PasswordCracker passCracker = new PasswordCracker();
-        passCracker.crack("/home/ethan/IdeaProjects/PasswordCracker/passFile.txt");
+        passCracker.crack("passFile.txt");
         ArrayList<String> passwds = passCracker.getPasswds();
         System.out.println(passwds);
     }
