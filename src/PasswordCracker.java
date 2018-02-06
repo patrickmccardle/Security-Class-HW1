@@ -73,28 +73,42 @@ public class PasswordCracker {
 
 
                     String word = wordsSc.nextLine();
-                    System.out.println(word);
+                    //System.out.println(word);
 
                     byte[] provider = word.getBytes();
                     md.update(provider);
                     byte[] digest = md.digest();
 
                     String hashedWord = DatatypeConverter.printHexBinary(digest);
-                    System.out.println(hashedWord);
+                    //System.out.println(hashedWord);
 
                     if (hash.compareTo(hashedWord) == 1) {
                         passwds.add(word);
-                    } else {
-
                     }
+                    else if (word.length() == 4) {
+                        String cap = Character.toUpperCase(word.charAt(0)) + word.substring(i) + "!";
+                        provider = cap.getBytes();
+                        md.update(provider);
+                        digest = md.digest();
+                        hashedWord = DatatypeConverter.printHexBinary(digest);
+                        if (hash.compareTo(hashedWord) == 1) {
+                            passwds.add(cap);
+                        }
+                    }
+                    else if (word.length() == 5) {
+                        
+                    }
+
                 }
 
                 for ( Integer j = 0 ; j <= 999999 ; j ++ ) {
+                    System.out.println(j);
                     byte provider = j.byteValue();
                     md.update(provider);
                     byte[] digest = md.digest();
 
                     String hashedInt = DatatypeConverter.printHexBinary(digest);
+                    System.out.println(hashedInt);
 
                     if(hash.compareTo(hashedInt) == 1) {
                         passwds.add(Integer.toString(j));
@@ -108,7 +122,8 @@ public class PasswordCracker {
         catch ( FileNotFoundException e )
         {
             e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
+        }
+        catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
     }
