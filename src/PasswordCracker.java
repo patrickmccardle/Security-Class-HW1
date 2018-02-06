@@ -14,16 +14,13 @@
 * */
 
 import javax.xml.bind.DatatypeConverter;
-import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Provider;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
 import java.io.File;
 import java.util.ArrayList;
 import java.security.MessageDigest;
-import java.nio.ByteBuffer;
+
 
 public class PasswordCracker {
     private static final String wordsPath = "/usr/share/dict/words";
@@ -47,7 +44,9 @@ public class PasswordCracker {
     public ArrayList<String> getPasswds() {
         return passwds;
     }
-
+    private ArrayList<String> getPaswds(String hash) {
+        return passwds;
+    }
     public void crack(String passFilePath)
     {
         File passFile = new File(passFilePath);
@@ -60,7 +59,7 @@ public class PasswordCracker {
                 String[] tokens = line.split(delims);
                 //System.out.print(tokens);
                 hashes.add(tokens[1]);
-                //System.out.println(hashes);
+                System.out.println(hashes);
             }
             passSc.close();
             File wordsFile = new File(wordsPath);
@@ -82,7 +81,7 @@ public class PasswordCracker {
                     String hashedWord = DatatypeConverter.printHexBinary(digest);
                     //System.out.println(hashedWord);
 
-                    if (hash.compareTo(hashedWord) == 1) {
+                    if (hash.compareTo(hashedWord) == 0) {
                         passwds.add(word);
                     }
                     /*
@@ -90,13 +89,23 @@ public class PasswordCracker {
                     * which gets the first letter  capitalized and a 1 - digit number appended
                     * */
                     else if (word.length() == 4) {
-                        String cap = Character.toUpperCase(word.charAt(0)) + word.substring(i) + "!";
+                        String cap = Character.toUpperCase(word.charAt(0)) + word.substring(i) ;//+ "!";
                         provider = cap.getBytes();
                         md.update(provider);
                         digest = md.digest();
                         hashedWord = DatatypeConverter.printHexBinary(digest);
-                        if (hash.compareTo(hashedWord) == 1) {
+                        if (hash.compareTo(hashedWord) == 0) {
                             passwds.add(cap);
+                        }
+                        else {
+                            String punct = cap + "!";
+                            provider = punct.getBytes();
+                            md.update(provider);
+                            digest = md.digest();
+                            hashedWord = DatatypeConverter.printHexBinary(digest);
+                            if (hash.compareTo(hashedWord) == 0) {
+                                passwds.add(punct);
+                            }
                         }
                     }
 
@@ -105,40 +114,45 @@ public class PasswordCracker {
                     with the digit 3. (words with 2 2's treat as two separate words with e's, eg. sleep -> sl3ep
                     and sle3p, but not sl33p
                     */
-
-                    else if (word.length() == 5 && word.contains("e")) {
-                        while (word.contains("e") ) {
-                            //TODO: this is an infinite loop as is...
-                            if (word.contains("3") && word.contains("e")) {
-                                word.replace("3", "e");
-                                word.replace("e", "3");
-
-                            } else {
-                                word.replaceAll("e", "3");
+                    else if ( word.length() == 5 && word.contains("e")) {
+                        char[] chars =  word.toCharArray();
+                        int size = word.length();
+                        ArrayList<String> combinations = new ArrayList<String>;
+                        StringBuilder conv = new StringBuilder();
+                        for ( int i ; i < size ; i ++ ) {
+                            if ( chars[i] == 'e' ) {
+                                chars[i] = '3';
                             }
+                            conv.append(chars[i]);
+                            if ( chars[i] == '3') {
+                                chars[i] = 'e';
+                                combinations.add(conv.toString());
+                            }
+                        }
+                    }
+                    else {
+                        for ( Integer j = 0 ; j <= 999999 ; j ++ ) {
+                            //System.out.println(j);
+                            String jString = Integer.toString(j);
+                            byte[] provider = jString.getBytes();
+                            md.update(provider);
+                            byte[] digest = md.digest();
+
+                            String hashedInt = DatatypeConverter.printHexBinary(digest);
+                            //System.out.println(hashedInt);
+
+                            if(hash.compareTo(hashedInt) == 0) {
+                                passwds.add(Integer.toString(j));
+                            }
+
                         }
                     }
                 }
             }
-                /* All numbers (4 digits to 6 digits in length */
-                for ( Integer j = 0 ; j <= 999999 ; j ++ ) {
-                    System.out.println(j);
-                    byte provider = j.byteValue();
-                    md.update(provider);
-                    byte[] digest = md.digest();
-
-                    String hashedInt = DatatypeConverter.printHexBinary(digest);
-                    System.out.println(hashedInt);
-
-                    if(hash.compareTo(hashedInt) == 1) {
-                        passwds.add(Integer.toString(j));
-                    }
-
-                }
-            }
-
-
         }
+
+
+
         catch ( FileNotFoundException e )
         {
             e.printStackTrace();
@@ -152,5 +166,7 @@ public class PasswordCracker {
     {
         PasswordCracker passCracker = new PasswordCracker();
         passCracker.crack("/home/ethan/IdeaProjects/PasswordCracker/passFile.txt");
+        ArrayList<String> passwds = passCracker.getPasswds();
+        System.out.println(passwds);
     }
 }
