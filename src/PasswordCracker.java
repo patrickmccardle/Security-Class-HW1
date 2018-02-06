@@ -85,6 +85,10 @@ public class PasswordCracker {
                     if (hash.compareTo(hashedWord) == 1) {
                         passwds.add(word);
                     }
+                    /*
+                    * A four char word from /u sr/share/dict/words (Linux or Mac)
+                    * which gets the first letter  capitalized and a 1 - digit number appended
+                    * */
                     else if (word.length() == 4) {
                         String cap = Character.toUpperCase(word.charAt(0)) + word.substring(i) + "!";
                         provider = cap.getBytes();
@@ -95,12 +99,28 @@ public class PasswordCracker {
                             passwds.add(cap);
                         }
                     }
-                    else if (word.length() == 5) {
-                        
+
+                    /*
+                    A five char word from /usr/share/dict/words with the letter 'e' in it which gets replaced
+                    with the digit 3. (words with 2 2's treat as two separate words with e's, eg. sleep -> sl3ep
+                    and sle3p, but not sl33p
+                    */
+
+                    else if (word.length() == 5 && word.contains("e")) {
+                        while (word.contains("e") ) {
+                            //TODO: this is an infinite loop as is...
+                            if (word.contains("3") && word.contains("e")) {
+                                word.replace("3", "e");
+                                word.replace("e", "3");
+
+                            } else {
+                                word.replaceAll("e", "3");
+                            }
+                        }
                     }
-
                 }
-
+            }
+                /* All numbers (4 digits to 6 digits in length */
                 for ( Integer j = 0 ; j <= 999999 ; j ++ ) {
                     System.out.println(j);
                     byte provider = j.byteValue();
