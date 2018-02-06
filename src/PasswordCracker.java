@@ -1,3 +1,5 @@
+package CSCI_345_HW1;
+
 import javax.xml.bind.DatatypeConverter;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -10,18 +12,23 @@ import java.util.ArrayList;
 import java.security.MessageDigest;
 
 public class PasswordCracker {
-    private static final String wordsPath = "/usr/share/dict/words";
-    private ArrayList<String> hashes;
+    private static final String wordsPath = "C:\\Users\\patri\\Documents\\Password Cracker\\wordList.txt";
+    private static final String passFilePath = "C:\\Users\\patri\\Documents\\Password Cracker\\examplePasses.txt";
+    private ArrayList<String> passHashes;
     private ArrayList<String> passwds;
     public PasswordCracker()
     {
-        hashes = new ArrayList<String>();
+        passHashes = new ArrayList<String>();
         passwds= new ArrayList<String>();
     }
 
     public String getWordsPath()
     {
         return wordsPath;
+    }
+    public String getPassPath() 
+    {
+    	return passFilePath;
     }
 
     public void crack(String passFilePath)
@@ -35,18 +42,18 @@ public class PasswordCracker {
                 String delims = "[:]";
                 String[] tokens = line.split(delims);
                 //System.out.print(tokens);
-                hashes.add(tokens[1]);
-                //System.out.println(hashes);
+                passHashes.add(tokens[1]);
+//                System.out.println(hashes);
             }
             passSc.close();
             File wordsFile = new File(wordsPath);
             Scanner wordsSc = new Scanner(wordsFile);
             MessageDigest md = MessageDigest.getInstance("MD5");
-            for ( int i = 0 ; i <  hashes.size() ; i ++ )
+            for ( int i = 0 ; i <  passHashes.size() ; i ++ )
             {
                 while ( wordsSc.hasNextLine() ) {
 
-                    String hash = hashes.get(i);
+                    String hash = passHashes.get(i);
                     String word = wordsSc.nextLine();
                     System.out.println(word);
 
@@ -56,11 +63,13 @@ public class PasswordCracker {
 
                     String hashedWord = DatatypeConverter.printHexBinary(digest);
                     System.out.println(hashedWord);
-
+                    
                     if ( hash.compareTo(hashedWord) == 1) {
                         passwds.add(word);
                     }
                 }
+//            System.out.println(passwds);
+                
             }
 
 
@@ -76,6 +85,7 @@ public class PasswordCracker {
     public static void main(String args[])
     {
         PasswordCracker passCracker = new PasswordCracker();
-        passCracker.crack("/home/ethan/IdeaProjects/PasswordCracker/passFile.txt");
+        passCracker.crack("C:\\Users\\patri\\Documents\\Password Cracker\\passFile.txt");
     }
 }
+
